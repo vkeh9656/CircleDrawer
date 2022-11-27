@@ -8,6 +8,10 @@
 // CCircleDrawerDlg 대화 상자
 class CCircleDrawerDlg : public CDialogEx
 {
+private:
+	CRect m_rect;
+	CPoint m_center_pos;
+
 // 생성입니다.
 public:
 	CCircleDrawerDlg(CWnd* pParent = nullptr);	// 표준 생성자입니다.
