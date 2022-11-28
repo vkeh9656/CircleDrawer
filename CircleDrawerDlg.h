@@ -9,8 +9,14 @@
 class CCircleDrawerDlg : public CDialogEx
 {
 private:
+	CImage m_image;
+	CDC m_image_dc;
+
 	CRect m_rect;
 	CPoint m_center_pos;
+	CPen m_grid_pen, m_sine_pen;
+	CBrush m_red_brush;
+	int m_step = 1;
 
 // 생성입니다.
 public:
@@ -34,4 +40,7 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnDestroy();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };

@@ -31,6 +31,8 @@ void CCircleDrawerDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CCircleDrawerDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_DESTROY()
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -47,8 +49,18 @@ BOOL CCircleDrawerDlg::OnInitDialog()
 
 	GetClientRect(m_rect);
 	m_center_pos = m_rect.CenterPoint();
-	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
+	m_image.Create(m_rect.Width(), m_rect.Height(), 32, 0);
+	m_image_dc.Attach(m_image.GetDC()); // HDC -> CDC Type으로 캐스팅
+
+	SetBackgroundColor(RGB(0, 0, 0));
+
+	m_grid_pen.CreatePen(PS_DOT, 1, RGB(168, 168, 168));
+	m_sine_pen.CreatePen(PS_SOLID, 2, RGB(0, 200, 255));
+	m_red_brush.CreateSolidBrush(RGB(255, 0, 0));
+	m_image_dc.SelectObject(&m_red_brush);
+
+	SetTimer(1, 10, NULL);
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
@@ -78,29 +90,8 @@ void CCircleDrawerDlg::OnPaint()
 	}
 	else
 	{
-		// 수평과 수직선을 그린다
-		dc.MoveTo(m_center_pos.x, 0);
-		dc.LineTo(m_center_pos.x, m_rect.bottom);
-
-		dc.MoveTo(0, m_center_pos.y);
-		dc.LineTo(m_rect.right, m_center_pos.y);
-
-		int degree, x, y;
-		double radian;
-
-		for (x = 0; x < m_rect.right; x++)
-		{
-			degree = x - m_center_pos.x;
-			radian = degree * PI / 180;
-			y = (int)(sin(radian) *-100) + m_center_pos.y; // sin값은 -1 0 1 안에서 움직이니 100을 곱해서 섬세하게 값 처리
-															// -100으로 곱한 이유는 좌표계가 달라 sin 그래프를 reversing
-															// 좌표계 체계가 MFC에서는 다르니 m_center_pos.y를 따로 더함
-			if (x) dc.LineTo(x, y);
-			else dc.MoveTo(x, y);
-
-
-		}
-
+		
+		m_image.Draw(dc, 0, 0);
 
 		// CDialogEx::OnPaint();
 	}
@@ -113,3 +104,67 @@ HCURSOR CCircleDrawerDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CCircleDrawerDlg::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+
+	KillTimer(1);
+
+	m_grid_pen.DeleteObject();
+	m_sine_pen.DeleteObject();
+	m_red_brush.DeleteObject();
+
+	m_image_dc.Detach();
+	m_image.ReleaseDC();
+}
+
+
+void CCircleDrawerDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	if (nIDEvent == 1)
+	{
+		if (m_step < m_rect.right) m_step++;
+		else m_step = 1;
+		
+		m_image_dc.FillSolidRect(m_rect, RGB(0, 0, 0));
+
+		CPen* p_old_pen = m_image_dc.SelectObject(&m_grid_pen);
+
+		// m_image_dc.SetBkMode(TRANSPARENT);  // FillSolidRect에서 처리하기떄문에 생략 가능
+
+		// 수평과 수직선을 그린다
+		m_image_dc.MoveTo(m_center_pos.x, 0);
+		m_image_dc.LineTo(m_center_pos.x, m_rect.bottom);
+
+		m_image_dc.MoveTo(0, m_center_pos.y);
+		m_image_dc.LineTo(m_rect.right, m_center_pos.y);
+
+		m_image_dc.SelectObject(&m_sine_pen);
+
+		int degree, x, y;
+		double radian;
+
+		/*for (x = 0; x < m_rect.right; x++)*/
+		for (x = 0; x < m_step; x++)
+		{
+			degree = x - m_center_pos.x;
+			radian = degree * PI / 180;
+			y = (int)(sin(radian) * -100) + m_center_pos.y; // sin값은 -1 0 1 안에서 움직이니 100을 곱해서 섬세하게 값 처리
+															// -100으로 곱한 이유는 좌표계가 달라 sin 그래프를 reversing
+															// 좌표계 체계가 MFC에서는 다르니 m_center_pos.y를 따로 더함
+			if (x) m_image_dc.LineTo(x, y);
+			else m_image_dc.MoveTo(x, y);
+		}
+		m_image_dc.Ellipse(x - 20, y - 20, x + 20, y + 20);
+
+		m_image_dc.SelectObject(p_old_pen);
+
+
+
+
+		Invalidate(FALSE);
+	}
+	else CDialogEx::OnTimer(nIDEvent);
+}
