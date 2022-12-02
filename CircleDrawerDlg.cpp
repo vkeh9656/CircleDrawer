@@ -120,6 +120,40 @@ void CCircleDrawerDlg::OnDestroy()
 	m_image.ReleaseDC();
 }
 
+void CCircleDrawerDlg::ShowGrid()
+{
+	m_image_dc.SelectObject(&m_grid_pen);
+
+	// m_image_dc.SetBkMode(TRANSPARENT);  // FillSolidRect에서 처리하기떄문에 생략 가능
+
+	// 수평과 수직선을 그린다
+	m_image_dc.MoveTo(m_center_pos.x, 0);
+	m_image_dc.LineTo(m_center_pos.x, m_rect.bottom);
+
+	m_image_dc.MoveTo(0, m_center_pos.y);
+	m_image_dc.LineTo(m_rect.right, m_center_pos.y);
+}
+
+void CCircleDrawerDlg::ShowSine()
+{
+	m_image_dc.SelectObject(&m_sine_pen);
+
+	int degree, x, y;
+	double radian;
+
+	/*for (x = 0; x < m_rect.right; x++)*/
+	for (x = 0; x < m_step; x++)
+	{
+		degree = x - m_center_pos.x;
+		radian = degree * PI / 180;
+		y = (int)(sin(radian) * -100) + m_center_pos.y; // sin값은 -1 0 1 안에서 움직이니 100을 곱해서 섬세하게 값 처리
+														// -100으로 곱한 이유는 좌표계가 달라 sin 그래프를 reversing
+														// 좌표계 체계가 MFC에서는 다르니 m_center_pos.y를 따로 더함
+		if (x) m_image_dc.LineTo(x, y);
+		else m_image_dc.MoveTo(x, y);
+	}
+	m_image_dc.Ellipse(x - 20, y - 20, x + 20, y + 20);
+}
 
 void CCircleDrawerDlg::OnTimer(UINT_PTR nIDEvent)
 {
@@ -130,39 +164,8 @@ void CCircleDrawerDlg::OnTimer(UINT_PTR nIDEvent)
 		
 		m_image_dc.FillSolidRect(m_rect, RGB(0, 0, 0));
 
-		CPen* p_old_pen = m_image_dc.SelectObject(&m_grid_pen);
-
-		// m_image_dc.SetBkMode(TRANSPARENT);  // FillSolidRect에서 처리하기떄문에 생략 가능
-
-		// 수평과 수직선을 그린다
-		m_image_dc.MoveTo(m_center_pos.x, 0);
-		m_image_dc.LineTo(m_center_pos.x, m_rect.bottom);
-
-		m_image_dc.MoveTo(0, m_center_pos.y);
-		m_image_dc.LineTo(m_rect.right, m_center_pos.y);
-
-		m_image_dc.SelectObject(&m_sine_pen);
-
-		int degree, x, y;
-		double radian;
-
-		/*for (x = 0; x < m_rect.right; x++)*/
-		for (x = 0; x < m_step; x++)
-		{
-			degree = x - m_center_pos.x;
-			radian = degree * PI / 180;
-			y = (int)(sin(radian) * -100) + m_center_pos.y; // sin값은 -1 0 1 안에서 움직이니 100을 곱해서 섬세하게 값 처리
-															// -100으로 곱한 이유는 좌표계가 달라 sin 그래프를 reversing
-															// 좌표계 체계가 MFC에서는 다르니 m_center_pos.y를 따로 더함
-			if (x) m_image_dc.LineTo(x, y);
-			else m_image_dc.MoveTo(x, y);
-		}
-		m_image_dc.Ellipse(x - 20, y - 20, x + 20, y + 20);
-
-		m_image_dc.SelectObject(p_old_pen);
-
-
-
+		ShowGrid();
+		ShowSine();
 
 		Invalidate(FALSE);
 	}

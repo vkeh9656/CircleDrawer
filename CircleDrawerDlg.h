@@ -22,6 +22,8 @@ private:
 public:
 	CCircleDrawerDlg(CWnd* pParent = nullptr);	// 표준 생성자입니다.
 
+	void ShowGrid();
+	void ShowSine();
 // 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_CIRCLEDRAWER_DIALOG };
