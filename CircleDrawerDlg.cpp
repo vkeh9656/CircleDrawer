@@ -167,12 +167,12 @@ void CCircleDrawerDlg::ShowCos()
 	double radian;
 
 	/*for (x = 0; x < m_rect.right; x++)*/
-	for (x = 0; x < m_step; x++)
+	for (y = 0; y < m_step; y++)
 	{
-		degree = x - m_center_pos.x;
+		degree = y - m_center_pos.y;
 		radian = degree * PI / 180;
-		y = (int)(cos(radian) * -100) + m_center_pos.y; 
-		if (x) m_image_dc.LineTo(x, y);
+		x = (int)(cos(radian) * 100) + m_center_pos.x; 
+		if (y) m_image_dc.LineTo(x, y);
 		else m_image_dc.MoveTo(x, y);
 	}
 	m_image_dc.SelectObject(&m_green_brush);
