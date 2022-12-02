@@ -141,20 +141,22 @@ void CCircleDrawerDlg::ShowSine()
 {
 	m_image_dc.SelectObject(&m_sine_pen);
 
-	int degree, x, y;
+	int degree, x, y, fix_value = m_center_pos.x - 360;
 	double radian;
 
 	/*for (x = 0; x < m_rect.right; x++)*/
 	for (x = 0; x < m_step; x++)
 	{
-		degree = x - m_center_pos.x;
+		degree = x - 360;
 		radian = degree * PI / 180;
 		y = (int)(sin(radian) * -100) + m_center_pos.y; // sin값은 -1 0 1 안에서 움직이니 100을 곱해서 섬세하게 값 처리
 														// -100으로 곱한 이유는 좌표계가 달라 sin 그래프를 reversing
 														// 좌표계 체계가 MFC에서는 다르니 m_center_pos.y를 따로 더함
-		if (x) m_image_dc.LineTo(x, y);
-		else m_image_dc.MoveTo(x, y);
+		if (x) m_image_dc.LineTo(x + fix_value, y);
+		else m_image_dc.MoveTo(x + fix_value, y);
 	}
+
+	x += fix_value;
 	m_image_dc.SelectObject(&m_red_brush);
 	m_image_dc.Ellipse(x - 20, y - 20, x + 20, y + 20);
 }
@@ -163,18 +165,20 @@ void CCircleDrawerDlg::ShowCos()
 {
 	m_image_dc.SelectObject(&m_cos_pen);
 
-	int degree, x, y;
+	int degree, x, y, fix_value = m_center_pos.y - 360;
 	double radian;
 
 	/*for (x = 0; x < m_rect.right; x++)*/
 	for (y = 0; y < m_step; y++)
 	{
-		degree = y - m_center_pos.y;
+		degree = y - 360;
 		radian = degree * PI / 180;
 		x = (int)(cos(radian) * 100) + m_center_pos.x; 
-		if (y) m_image_dc.LineTo(x, y);
-		else m_image_dc.MoveTo(x, y);
+		if (y) m_image_dc.LineTo(x, y + fix_value);
+		else m_image_dc.MoveTo(x, y + fix_value);
 	}
+
+	y += fix_value;
 	m_image_dc.SelectObject(&m_green_brush);
 	m_image_dc.Ellipse(x - 20, y - 20, x + 20, y + 20);
 }
@@ -183,7 +187,7 @@ void CCircleDrawerDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	if (nIDEvent == 1)
 	{
-		if (m_step < m_rect.right) m_step++;
+		if (m_step < 720) m_step++;
 		else m_step = 1;
 		
 		m_image_dc.FillSolidRect(m_rect, RGB(0, 0, 0));
