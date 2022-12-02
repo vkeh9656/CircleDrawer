@@ -14,9 +14,9 @@ private:
 
 	CRect m_rect;
 	CPoint m_center_pos;
-	CPen m_grid_pen, m_sine_pen, m_cos_pen;
-	CBrush m_red_brush, m_green_brush;
-	int m_step = 1;
+	CPen m_grid_pen, m_sine_pen, m_cos_pen, m_circle_pen;
+	CBrush m_red_brush, m_green_brush, m_yellow_brush;
+	int m_step = 1, m_sine_x, m_sine_y, m_cos_x, m_cos_y;
 
 // 생성입니다.
 public:

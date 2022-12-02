@@ -58,10 +58,11 @@ BOOL CCircleDrawerDlg::OnInitDialog()
 	m_grid_pen.CreatePen(PS_DOT, 1, RGB(168, 168, 168));
 	m_sine_pen.CreatePen(PS_SOLID, 2, RGB(0, 200, 255));
 	m_cos_pen.CreatePen(PS_SOLID, 2, RGB(100, 255, 100));
+	m_circle_pen.CreatePen(PS_SOLID, 2, RGB(255, 255, 100));
 	
 	m_red_brush.CreateSolidBrush(RGB(255, 0, 0));
 	m_green_brush.CreateSolidBrush(RGB(0, 200, 0));
-	m_image_dc.SelectObject(&m_red_brush);
+	m_yellow_brush.CreateSolidBrush(RGB(200, 200, 0));
 
 	SetTimer(1, 10, NULL);
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -155,8 +156,11 @@ void CCircleDrawerDlg::ShowSine()
 		if (x) m_image_dc.LineTo(x + fix_value, y);
 		else m_image_dc.MoveTo(x + fix_value, y);
 	}
-
+	
 	x += fix_value;
+
+	m_sine_x = x;
+	m_sine_y = y;
 	m_image_dc.SelectObject(&m_red_brush);
 	m_image_dc.Ellipse(x - 20, y - 20, x + 20, y + 20);
 }
@@ -177,8 +181,11 @@ void CCircleDrawerDlg::ShowCos()
 		if (y) m_image_dc.LineTo(x, y + fix_value);
 		else m_image_dc.MoveTo(x, y + fix_value);
 	}
-
+	
 	y += fix_value;
+
+	m_cos_x = x;
+	m_cos_y = y;
 	m_image_dc.SelectObject(&m_green_brush);
 	m_image_dc.Ellipse(x - 20, y - 20, x + 20, y + 20);
 }
@@ -195,6 +202,23 @@ void CCircleDrawerDlg::OnTimer(UINT_PTR nIDEvent)
 		ShowGrid();
 		ShowSine();
 		ShowCos();
+
+		m_image_dc.SelectObject(&m_circle_pen);
+		m_image_dc.SelectStockObject(NULL_BRUSH);
+		m_image_dc.Ellipse(m_center_pos.x - 100, m_center_pos.y - 100, m_center_pos.x + 100, m_center_pos.y + 100);
+		m_image_dc.SelectObject(&m_yellow_brush);
+		
+		m_image_dc.Ellipse(m_cos_x - 20, m_sine_y - 20, m_cos_x+ 20, m_sine_y + 20);
+
+		m_image_dc.SelectObject(&m_sine_pen);
+		m_image_dc.MoveTo(m_sine_x, m_sine_y);
+		m_image_dc.LineTo(m_cos_x, m_sine_y);
+
+		m_image_dc.SelectObject(&m_cos_pen);
+		m_image_dc.MoveTo(m_cos_x, m_cos_y);
+		m_image_dc.LineTo(m_cos_x, m_sine_y);
+
+
 
 		Invalidate(FALSE);
 	}
