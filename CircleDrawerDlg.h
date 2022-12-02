@@ -14,8 +14,8 @@ private:
 
 	CRect m_rect;
 	CPoint m_center_pos;
-	CPen m_grid_pen, m_sine_pen;
-	CBrush m_red_brush;
+	CPen m_grid_pen, m_sine_pen, m_cos_pen;
+	CBrush m_red_brush, m_green_brush;
 	int m_step = 1;
 
 // 생성입니다.
@@ -24,6 +24,7 @@ public:
 
 	void ShowGrid();
 	void ShowSine();
+	void ShowCos();
 // 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_CIRCLEDRAWER_DIALOG };

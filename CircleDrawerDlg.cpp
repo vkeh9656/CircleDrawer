@@ -57,7 +57,10 @@ BOOL CCircleDrawerDlg::OnInitDialog()
 
 	m_grid_pen.CreatePen(PS_DOT, 1, RGB(168, 168, 168));
 	m_sine_pen.CreatePen(PS_SOLID, 2, RGB(0, 200, 255));
+	m_cos_pen.CreatePen(PS_SOLID, 2, RGB(100, 255, 100));
+	
 	m_red_brush.CreateSolidBrush(RGB(255, 0, 0));
+	m_green_brush.CreateSolidBrush(RGB(0, 200, 0));
 	m_image_dc.SelectObject(&m_red_brush);
 
 	SetTimer(1, 10, NULL);
@@ -152,6 +155,27 @@ void CCircleDrawerDlg::ShowSine()
 		if (x) m_image_dc.LineTo(x, y);
 		else m_image_dc.MoveTo(x, y);
 	}
+	m_image_dc.SelectObject(&m_red_brush);
+	m_image_dc.Ellipse(x - 20, y - 20, x + 20, y + 20);
+}
+
+void CCircleDrawerDlg::ShowCos()
+{
+	m_image_dc.SelectObject(&m_cos_pen);
+
+	int degree, x, y;
+	double radian;
+
+	/*for (x = 0; x < m_rect.right; x++)*/
+	for (x = 0; x < m_step; x++)
+	{
+		degree = x - m_center_pos.x;
+		radian = degree * PI / 180;
+		y = (int)(cos(radian) * -100) + m_center_pos.y; 
+		if (x) m_image_dc.LineTo(x, y);
+		else m_image_dc.MoveTo(x, y);
+	}
+	m_image_dc.SelectObject(&m_green_brush);
 	m_image_dc.Ellipse(x - 20, y - 20, x + 20, y + 20);
 }
 
@@ -166,6 +190,7 @@ void CCircleDrawerDlg::OnTimer(UINT_PTR nIDEvent)
 
 		ShowGrid();
 		ShowSine();
+		ShowCos();
 
 		Invalidate(FALSE);
 	}
